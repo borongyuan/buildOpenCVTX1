@@ -8,6 +8,12 @@ OPENCV_VERSION=3.4.1
 # Jetson TX1
 ARCH_BIN=5.3
 INSTALL_DIR=/usr/local
+# Download the opencv_contrib repository
+# If you are installing the opencv extra modules, ie
+#  OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules
+# Make sure that you set this to YES
+# Value should be YES or NO
+DOWNLOAD_OPENCV_CONTRIB=YES
 # Download the opencv_extras repository
 # If you are installing the opencv testdata, ie
 #  OPENCV_TEST_DATA_PATH=../opencv_extra/testdata
@@ -117,6 +123,15 @@ if [ $OPENCV_VERSION = 3.4.1 ] ; then
   git cherry-pick 549b5df
 fi
 
+if [ $DOWNLOAD_OPENCV_CONTRIB == "YES" ] ; then
+ echo "Installing opencv_contrib"
+ # This is for the test data
+ cd $OPENCV_SOURCE_DIR
+ git clone https://github.com/opencv/opencv_contrib.git
+ cd opencv_contrib
+ git checkout -b v${OPENCV_VERSION} ${OPENCV_VERSION}
+fi
+
 if [ $DOWNLOAD_OPENCV_EXTRAS == "YES" ] ; then
  echo "Installing opencv_extras"
  # This is for the test data
@@ -140,6 +155,9 @@ cd build
 
 time cmake -D CMAKE_BUILD_TYPE=RELEASE \
       -D CMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX} \
+      -D INSTALL_C_EXAMPLES=ON \
+      -D INSTALL_PYTHON_EXAMPLES=ON \
+      -D WITH_TBB=ON \
       -D WITH_CUDA=ON \
       -D CUDA_ARCH_BIN=${ARCH_BIN} \
       -D CUDA_ARCH_PTX="" \
@@ -151,6 +169,8 @@ time cmake -D CMAKE_BUILD_TYPE=RELEASE \
       -D WITH_GSTREAMER_0_10=OFF \
       -D WITH_QT=ON \
       -D WITH_OPENGL=ON \
+      -D OPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules \
+      -D BUILD_EXAMPLES=ON \
       ../
 
 if [ $? -eq 0 ] ; then
@@ -164,7 +184,7 @@ fi
 
 # Consider $ sudo nvpmodel -m 2 or $ sudo nvpmodel -m 0
 NUM_CPU=$(nproc)
-time make -j$(($NUM_CPU - 1))
+time make -j$(($NUM_CPU))
 if [ $? -eq 0 ] ; then
   echo "OpenCV make successful"
 else
