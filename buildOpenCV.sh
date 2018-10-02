@@ -105,9 +105,9 @@ cd /usr/lib/aarch64-linux-gnu/
 sudo ln -sf tegra/libGL.so libGL.so
 
 # Python 2.7
-sudo apt-get install -y python-dev python-numpy python-py python-pytest
+# sudo apt-get install -y python-dev python-numpy python-py python-pytest
 # Python 3.5
-sudo apt-get install -y python3-dev python3-numpy python3-py python3-pytest
+# sudo apt-get install -y python3-dev python3-numpy python3-py python3-pytest
 
 # GStreamer support
 sudo apt-get install -y libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev 
